@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-Multi — Administration</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+</head>
+<body>
+  <div class="amb"></div>
+  <div id="toast-container"></div>
+
+  <div class="admin-layout">
+
+    <!-- ─── SIDEBAR ──────────────────────────────────────────── -->
+    <aside class="admin-sidebar">
+      <div class="admin-logo-area">
+        <span class="admin-logo">MINI-MULTI</span>
+        <div class="admin-logo-sub">Administration</div>
+      </div>
+
+      <nav class="admin-nav">
+        <div class="nav-item active" data-section="overview"      onclick="showSection('overview')">
+          <span class="nav-icon">📊</span> Vue d'ensemble
+        </div>
+        <div class="nav-item" data-section="teams"         onclick="showSection('teams')">
+          <span class="nav-icon">👥</span> Équipes
+        </div>
+        <div class="nav-item" data-section="scores"        onclick="showSection('scores')">
+          <span class="nav-icon">🏆</span> Scores
+        </div>
+        <div class="nav-item" data-section="halo"          onclick="showSection('halo')">
+          <span class="nav-icon">🪖</span> Lobbies Halo
+        </div>
+        <div class="nav-item" data-section="announcements" onclick="showSection('announcements')">
+          <span class="nav-icon">📣</span> Annonces
+        </div>
+        <div class="nav-item" data-section="schedule"      onclick="showSection('schedule')">
+          <span class="nav-icon">📅</span> Programme
+        </div>
+      </nav>
+
+      <div class="admin-bottom-nav">
+        <div class="nav-item" onclick="window.open('dashboard.html','_blank')">
+          <span class="nav-icon">👁️</span> Voir le live
+        </div>
+        <div class="nav-item" onclick="adminLogout()">
+          <span class="nav-icon">🚪</span> Déconnexion
+        </div>
+      </div>
+    </aside>
+
+    <!-- ─── CONTENU ──────────────────────────────────────────── -->
+    <main class="admin-content">
+
+      <!-- ──────────────────────────────────────────────────────
+           SECTION : VUE D'ENSEMBLE
+      ────────────────────────────────────────────────────────── -->
+      <section id="section-overview" class="admin-section">
+        <div class="admin-page-title">Vue d'ensemble</div>
+
+        <div class="overview-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="ov-teams-count">—</div>
+            <div class="stat-label">Équipes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="ov-games-done">—</div>
+            <div class="stat-label">Jeux complétés</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="ov-anncs-count">—</div>
+            <div class="stat-label">Annonces</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Étape en cours</div>
+          <p style="font-size:1.1rem;font-weight:600" id="ov-current-step">—</p>
+          <p class="text-muted text-sm mt-2">Gère le programme dans <a onclick="showSection('schedule')" style="color:var(--accent);cursor:pointer">Programme</a>.</p>
+        </div>
+
+        <div class="card mt-4">
+          <div class="section-title">Accès rapide</div>
+          <div class="flex gap-3" style="flex-wrap:wrap">
+            <button class="btn btn-secondary" onclick="showSection('scores')">🏆 Saisir des scores</button>
+            <button class="btn btn-secondary" onclick="showSection('halo')">🪖 Assignations Halo</button>
+            <button class="btn btn-secondary" onclick="showSection('announcements')">📣 Nouvelle annonce</button>
+            <button class="btn btn-secondary" onclick="window.open('dashboard.html','_blank')">👁️ Voir le live</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────
+           SECTION : ÉQUIPES
+      ────────────────────────────────────────────────────────── -->
+      <section id="section-teams" class="admin-section hidden">
+        <div class="admin-page-title">Équipes</div>
+
+        <!-- Tableau des équipes -->
+        <div class="a-table-wrap">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>Équipe</th>
+                <th>Joueur 1</th>
+                <th>Joueur 2</th>
+                <th style="width:80px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="teams-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Formulaire ajout équipe -->
+        <div class="card">
+          <div class="section-title">Ajouter une équipe</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
+            <div class="form-group">
+              <label class="form-label">Nom de l'équipe</label>
+              <input type="text" id="new-team-name" class="form-input" placeholder="ex: Team Alpha">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Joueur 1</label>
+              <input type="text" id="new-player1" class="form-input" placeholder="Pseudo">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Joueur 2</label>
+              <input type="text" id="new-player2" class="form-input" placeholder="Pseudo">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="submitAddTeam()">+ Ajouter l'équipe</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────
+           SECTION : SCORES
+      ────────────────────────────────────────────────────────── -->
+      <section id="section-scores" class="admin-section hidden">
+        <div class="admin-page-title">Saisie des scores</div>
+
+        <p class="text-muted text-sm mb-4">
+          Sélectionne un jeu et entre le classement de chaque équipe.
+          Sauvegarde avec <strong>Entrée</strong> ou en cliquant hors du champ.
+          Le score est le rang d'arrivée (1 = meilleur).
+        </p>
+
+        <!-- Sélecteur de jeu -->
+        <div class="game-selector">
+          <button class="game-btn active fg" data-game="fall_guys" onclick="selectGame('fall_guys')">
+            <span class="game-tag fg">FG</span> Fall Guys
+          </button>
+          <button class="game-btn mc" data-game="minecraft" onclick="selectGame('minecraft')">
+            <span class="game-tag mc">MC</span> Minecraft
+          </button>
+          <button class="game-btn hi" data-game="halo" onclick="selectGame('halo')">
+            <span class="game-tag hi">HI</span> Halo Infinite
+          </button>
+        </div>
+
+        <!-- Lignes de saisie -->
+        <div class="score-entry-wrap">
+          <div class="score-entry-hdr">
+            <span style="font-weight:600;font-size:.9rem">Classements</span>
+            <div class="flex gap-2">
+              <button class="btn btn-danger btn-sm" onclick="resetCurrentGameScores()">↺ Réinitialiser ce jeu</button>
+              <button class="btn btn-danger btn-sm" onclick="resetAllGameScores()" style="opacity:.8">↺ Tout réinitialiser</button>
+              <button class="btn btn-primary btn-sm" onclick="saveAllScores()">💾 Sauvegarder</button>
+            </div>
+          </div>
+          <div id="score-entries"></div>
+        </div>
+
+        <p class="text-muted text-sm mt-4">
+          💡 Pour Fall Guys : le <em>nombre de Top 1</em> et le <em>meilleur score en une partie</em> servent de critères de départage en cas d'égalité.
+        </p>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────
+           SECTION : HALO LOBBIES
+      ────────────────────────────────────────────────────────── -->
+      <section id="section-halo" class="admin-section hidden">
+        <div class="admin-page-title">Assignations Halo Infinite</div>
+
+        <p class="text-muted text-sm mb-4">
+          Pour Halo Infinite, les 2 joueurs de chaque équipe sont séparés dans 2 parties différentes.
+          Assigne ici quel joueur va dans quelle partie. Une fois sauvegardé, la répartition apparaît sur le dashboard.
+        </p>
+
+        <div class="score-entry-wrap">
+          <div class="score-entry-hdr">
+            <div class="flex gap-2 items-center">
+              <span class="badge badge-hi">Halo Infinite</span>
+              <span style="font-weight:600;font-size:.9rem">Répartition des joueurs</span>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-danger btn-sm" onclick="clearHaloAssignments()">🗑️ Effacer</button>
+              <button class="btn btn-secondary btn-sm" onclick="randomizeHaloAssignments()">🎲 Aléatoire</button>
+              <button class="btn btn-primary btn-sm" onclick="saveAllHaloAssignments()">💾 Sauvegarder</button>
+            </div>
+          </div>
+
+          <!-- En-tête colonnes -->
+          <div class="halo-assign-row" style="background:var(--bg-surface);border-bottom:1px solid var(--border)">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)">Équipe</div>
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)">Joueur 1</div>
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)">Joueur 2</div>
+          </div>
+
+          <div id="halo-assign-rows"></div>
+        </div>
+
+        <div class="card mt-4" style="border-color:var(--hi-soft)">
+          <div class="section-title" style="color:var(--hi)">Note</div>
+          <p class="text-sm" style="line-height:1.6;color:var(--text-muted)">
+            Assure-toi que les 2 joueurs d'une même équipe sont dans des <strong style="color:var(--text)">parties différentes</strong>.
+            Le classement Halo final de chaque équipe est saisi dans la section <em>Scores</em>.
+          </p>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────
+           SECTION : ANNONCES
+      ────────────────────────────────────────────────────────── -->
+      <section id="section-announcements" class="admin-section hidden">
+        <div class="admin-page-title">Annonces</div>
+
+        <!-- Liste des annonces existantes -->
+        <div class="a-table-wrap">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>Annonce</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th style="width:80px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="annc-admin-list"></tbody>
+          </table>
+        </div>
+
+        <!-- Formulaire création / édition -->
+        <div class="card" id="annc-form-section">
+          <div class="section-title" id="annc-form-title">Nouvelle annonce</div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="form-group">
+              <label class="form-label">Titre *</label>
+              <input type="text" id="annc-title" class="form-input" placeholder="Titre de l'annonce">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contenu (optionnel)</label>
+              <textarea id="annc-content" class="form-input" placeholder="Détails supplémentaires…"></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:end">
+              <div class="form-group">
+                <label class="form-label">Type</label>
+                <select id="annc-type" class="form-input">
+                  <option value="general">📣 Annonce générale</option>
+                  <option value="halo">🔵 Halo Infinite</option>
+                  <option value="important">⭐ Important</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex-direction:row;align-items:center;gap:.5rem;padding-bottom:.1rem">
+                <input type="checkbox" id="annc-pinned" style="width:16px;height:16px;cursor:pointer">
+                <label for="annc-pinned" class="form-label" style="cursor:pointer;margin:0">Épingler</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-ghost hidden" id="btn-annc-cancel" onclick="resetAnncForm()">Annuler</button>
+            <button class="btn btn-primary" onclick="submitAnnc()">Publier l'annonce</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────
+           SECTION : PROGRAMME
+      ────────────────────────────────────────────────────────── -->
+      <section id="section-schedule" class="admin-section hidden">
+        <div class="admin-page-title">Programme du tournoi</div>
+
+        <p class="text-muted text-sm mb-4">
+          Gère l'avancement du tournoi. L'étape <strong style="color:var(--accent)">active</strong> apparaît dans le popup des joueurs.
+        </p>
+
+        <div class="score-entry-wrap">
+          <div class="score-entry-hdr">
+            <span style="font-weight:600;font-size:.9rem">Étapes</span>
+            <button class="btn btn-ghost btn-sm" onclick="resetAllSchedule()">↩ Réinitialiser</button>
+          </div>
+          <div id="step-manage-list"></div>
+        </div>
+
+        <div class="card mt-4" style="opacity:.7">
+          <p class="text-sm" style="color:var(--text-muted);line-height:1.7">
+            ▶ <strong style="color:var(--text)">Activer</strong> une étape la marque comme "en cours" (popup joueurs mis à jour).<br>
+            ✓ <strong style="color:var(--text)">Terminer</strong> la marque comme complète et active automatiquement la suivante.<br>
+            ↩ Le bouton de retour remet l'étape en attente.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- ─── MODAL DE CONFIRMATION ──────────────────────────────── -->
+  <div id="confirm-modal" class="modal-overlay hidden" onclick="handleModalOverlayClick(event)">
+    <div class="modal-box">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-body"  id="modal-body"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost"  onclick="closeConfirmModal()">Annuler</button>
+        <button class="btn btn-danger" onclick="executeConfirmModal()">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/mock-db.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

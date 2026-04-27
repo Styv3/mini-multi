@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-Multi — Programme</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body>
+  <div class="amb"></div>
+  <div id="toast-container"></div>
+
+  <!-- ─── HEADER ─────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-logo">MINI-MULTI</div>
+      <nav class="header-nav">
+        <a href="dashboard.html"  class="header-nav-link">Classement</a>
+        <a href="programme.html"  class="header-nav-link active">Programme</a>
+        <a href="regles.html"     class="header-nav-link">Règles</a>
+      </nav>
+      <div class="header-right">
+        <span class="live-dot">Live</span>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Quitter</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── CONTENU ────────────────────────────────────────────── -->
+  <main class="prog-layout">
+
+    <div class="prog-header">
+      <h1 class="prog-title">Programme du tournoi</h1>
+      <p class="prog-subtitle">Suis l'avancement des épreuves en temps réel.</p>
+    </div>
+
+    <div class="prog-timeline" id="prog-timeline">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        Chargement…
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/mock-db.js"></script>
+  <script>
+    if (!localStorage.getItem('mm_user_type')) window.location.href = 'index.html';
+
+    const GAME_LABEL = { fall_guys: 'Fall Guys', minecraft: 'Minecraft', halo: 'Halo Infinite', general: 'Général' };
+    const GAME_BADGE = { fall_guys: 'fg', minecraft: 'mc', halo: 'hi' };
+
+    function esc(s) {
+      return (s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function render() {
+      const steps = await getTournamentSteps();
+      const el    = document.getElementById('prog-timeline');
+
+      if (!steps.length) { el.innerHTML = '<p style="text-align:center;color:var(--text-muted)">Aucune étape définie.</p>'; return; }
+
+      const doneCount    = steps.filter(s => s.status === 'completed').length;
+      const currentStep  = steps.find(s => s.status === 'current');
+      const progressPct  = Math.round((doneCount / steps.length) * 100);
+
+      el.innerHTML = `
+        <div class="prog-progress-wrap">
+          <div class="prog-progress-bar">
+            <div class="prog-progress-fill" style="width:${progressPct}%"></div>
+          </div>
+          <span class="prog-progress-label">${doneCount} / ${steps.length} étapes</span>
+        </div>
+
+        ${currentStep ? `
+        <div class="prog-current-banner">
+          <span class="prog-current-dot"></span>
+          <div>
+            <div class="prog-current-label">En cours</div>
+            <div class="prog-current-name">${esc(currentStep.title)}</div>
+            ${currentStep.description ? `<div class="prog-current-desc">${esc(currentStep.description)}</div>` : ''}
+          </div>
+          ${currentStep.game && currentStep.game !== 'general'
+            ? `<span class="badge badge-${GAME_BADGE[currentStep.game]}" style="margin-left:auto;flex-shrink:0">${GAME_LABEL[currentStep.game]}</span>`
+            : ''}
+        </div>` : ''}
+
+        <div class="prog-steps">
+          ${steps.map((s, i) => {
+            const isLast = i === steps.length - 1;
+            const badge  = s.game && s.game !== 'general'
+              ? `<span class="badge badge-${GAME_BADGE[s.game]}">${GAME_LABEL[s.game]}</span>`
+              : '';
+            return `
+              <div class="prog-step ${s.status}">
+                <div class="prog-step-indicator">
+                  <div class="prog-step-dot"></div>
+                  ${!isLast ? '<div class="prog-step-line"></div>' : ''}
+                </div>
+                <div class="prog-step-body">
+                  <div class="prog-step-head">
+                    <span class="prog-step-title">${esc(s.title)}</span>
+                    ${s.status === 'current'   ? '<span class="prog-status-pill current">En cours</span>'   : ''}
+                    ${s.status === 'completed' ? '<span class="prog-status-pill done">Terminé</span>'       : ''}
+                    ${s.status === 'pending'   ? '<span class="prog-status-pill pending">À venir</span>'    : ''}
+                  </div>
+                  ${s.description ? `<p class="prog-step-desc">${esc(s.description)}</p>` : ''}
+                  ${badge ? `<div style="margin-top:.4rem">${badge}</div>` : ''}
+                </div>
+              </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    function logout() {
+      localStorage.removeItem('mm_user_type');
+      localStorage.removeItem('mm_team_id');
+      localStorage.removeItem('mm_team_name');
+      window.location.href = 'index.html';
+    }
+
+    render();
+    subscribeToTable('tournament_steps', render);
+  </script>
+</body>
+</html>

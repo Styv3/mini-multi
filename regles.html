@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-Multi — Règles</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body>
+  <div class="amb"></div>
+
+  <!-- ─── HEADER ─────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-logo">MINI-MULTI</div>
+      <nav class="header-nav">
+        <a href="dashboard.html"  class="header-nav-link">Classement</a>
+        <a href="programme.html"  class="header-nav-link">Programme</a>
+        <a href="regles.html"     class="header-nav-link active">Règles</a>
+      </nav>
+      <div class="header-right">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Quitter</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── CONTENU ────────────────────────────────────────────── -->
+  <main class="rules-page-layout">
+
+    <div class="prog-header">
+      <h1 class="prog-title">Règles des épreuves</h1>
+      <p class="prog-subtitle">Retrouve ici les règles détaillées de chacune des trois épreuves du tournoi.</p>
+    </div>
+
+    <div class="rules-page-grid">
+
+      <!-- Fall Guys -->
+      <div class="rules-page-card">
+        <div class="rules-page-card-header fg">
+          <span class="rules-page-game-tag fg">FG</span>
+          <span class="rules-page-game-name">Fall Guys</span>
+        </div>
+        <div class="rules-page-card-body">
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Format</div>
+            <ul class="rules-page-ul">
+              <li>3 parties jouées</li>
+              <li>Chacun joue en solo dans la même partie</li>
+              <li>Points attribués selon ta progression</li>
+            </ul>
+          </div>
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Classement</div>
+            <p>Les points individuels sont cumulés sur les 3 parties pour former le score final du duo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minecraft -->
+      <div class="rules-page-card">
+        <div class="rules-page-card-header mc">
+          <span class="rules-page-game-tag mc">MC</span>
+          <span class="rules-page-game-name">Minecraft</span>
+        </div>
+        <div class="rules-page-card-body">
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Serveur</div>
+            <p class="rules-page-server">play.manacube.com</p>
+            <p style="font-size:.8rem;color:var(--text-muted);margin-top:.2rem">Medium Parkour Maps</p>
+          </div>
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Format — 30 minutes</div>
+            <p>Réalise les meilleurs temps sur les 3 maps :</p>
+            <ul class="rules-page-ul">
+              <li>Biomes</li>
+              <li>Sonic</li>
+              <li>Rainbow Road</li>
+            </ul>
+          </div>
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Calcul du score</div>
+            <ul class="rules-page-ul">
+              <li><span>Les temps des 3 maps sont additionnés</span></li>
+              <li><span>Map non terminée = <strong>+30 min</strong> de pénalité</span></li>
+              <li><span>Les temps des deux joueurs du duo sont cumulés</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Halo Infinite -->
+      <div class="rules-page-card">
+        <div class="rules-page-card-header hi">
+          <span class="rules-page-game-tag hi">HI</span>
+          <span class="rules-page-game-name">Halo Infinite</span>
+        </div>
+        <div class="rules-page-card-body">
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Format</div>
+            <p>3 parties FFA sur les maps :</p>
+            <ul class="rules-page-ul">
+              <li>Absolution</li>
+              <li>Bazaar</li>
+              <li>Catalyst</li>
+            </ul>
+          </div>
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Objectif</div>
+            <p>25 kills par partie.</p>
+          </div>
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Lobbies</div>
+            <p>Les deux joueurs d'un même duo sont séparés dans des parties différentes (1 joueur par équipe par lobby).</p>
+          </div>
+          <div class="rules-page-section">
+            <div class="rules-page-section-title">Classement</div>
+            <p>Basé sur la moyenne des scores obtenus sur les 3 parties.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/mock-db.js"></script>
+  <script>
+    if (!localStorage.getItem('mm_user_type')) window.location.href = 'index.html';
+    function logout() {
+      localStorage.removeItem('mm_user_type');
+      localStorage.removeItem('mm_team_id');
+      localStorage.removeItem('mm_team_name');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

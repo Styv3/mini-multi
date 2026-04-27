@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-Multi — Classement</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body>
+  <div class="amb"></div>
+  <div id="toast-container"></div>
+
+  <!-- ─── HEADER ─────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-logo">MINI-MULTI</div>
+      <nav class="header-nav">
+        <a href="dashboard.html"  class="header-nav-link active">Classement</a>
+        <a href="programme.html"  class="header-nav-link">Programme</a>
+        <a href="regles.html"     class="header-nav-link">Règles</a>
+      </nav>
+      <div class="header-right">
+        <span class="live-dot">Live</span>
+        <div class="header-user" id="header-user-info"></div>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Quitter</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── POPUP PROCHAINE ÉTAPE ──────────────────────────────── -->
+  <div class="step-popup hidden" id="step-popup">
+    <div class="popup-head">
+      <span class="popup-label">⚡ Prochaine étape</span>
+      <button class="popup-close-btn" onclick="closePopup()">✕</button>
+    </div>
+    <div class="popup-step-title" id="popup-step-title"></div>
+    <div class="popup-step-desc"  id="popup-step-desc"></div>
+    <div class="popup-footer">
+      <span class="badge hidden" id="popup-badge"></span>
+    </div>
+  </div>
+
+  <!-- ─── CONTENU PRINCIPAL ──────────────────────────────────── -->
+  <main class="dash-layout">
+
+    <!-- Colonne gauche : classement + Halo -->
+    <div class="dash-main">
+
+      <!-- Classement -->
+      <div class="leaderboard-wrap">
+        <div class="lb-header">
+          <span class="lb-title">Classement Général</span>
+          <div class="flex gap-2">
+            <span class="badge badge-fg">Fall Guys</span>
+            <span class="badge badge-mc">Minecraft</span>
+            <span class="badge badge-hi">Halo Infinite</span>
+          </div>
+        </div>
+
+        <!-- État chargement -->
+        <div id="lb-loading" class="loading-state">
+          <div class="spinner"></div>
+          Chargement du classement…
+        </div>
+
+        <!-- Table -->
+        <div id="lb-content" class="hidden">
+          <div class="table-scroll">
+            <table class="lb-table">
+              <thead>
+                <tr>
+                  <th class="col-rank">#</th>
+                  <th>Équipe</th>
+                  <th class="center">
+                    <div class="th-game">
+                      <span class="th-game-icon fg">FG</span>
+                      Fall Guys
+                    </div>
+                  </th>
+                  <th class="center">
+                    <div class="th-game">
+                      <span class="th-game-icon mc">MC</span>
+                      Minecraft
+                    </div>
+                  </th>
+                  <th class="center">
+                    <div class="th-game">
+                      <span class="th-game-icon hi">HI</span>
+                      Halo Infinite
+                    </div>
+                  </th>
+                  <th class="center">Total</th>
+                </tr>
+              </thead>
+              <tbody id="lb-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel Halo Infinite (visible seulement si des assignations existent) -->
+      <div class="halo-panel hidden" id="halo-panel">
+        <div class="halo-panel-header">
+          <span class="badge badge-hi">Halo Infinite</span>
+          <span class="halo-panel-title">Répartition des lobbies</span>
+        </div>
+        <div class="lobby-grid">
+          <div class="lobby-col l1">
+            <div class="lobby-col-header">
+              <span class="lobby-dot"></span> Partie 1
+            </div>
+            <div class="lobby-players-list" id="lobby1-players"></div>
+          </div>
+          <div class="lobby-col l2">
+            <div class="lobby-col-header">
+              <span class="lobby-dot"></span> Partie 2
+            </div>
+            <div class="lobby-players-list" id="lobby2-players"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dash-main -->
+
+    <!-- Colonne droite : sidebar -->
+    <aside class="dash-sidebar">
+
+      <!-- Annonces -->
+      <div class="card">
+        <div class="section-title">Annonces</div>
+        <div class="annc-list" id="annc-list">
+          <div class="annc-empty">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- Programme -->
+      <div class="card">
+        <div class="section-title">Programme</div>
+        <div class="schedule-list" id="schedule-list">
+          <div class="loading-state" style="padding:1.5rem">
+            <div class="spinner" style="width:24px;height:24px;border-width:2px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Règles -->
+      <div class="card">
+        <div class="section-title">Règles</div>
+        <div class="rules-list">
+
+          <div class="rules-item">
+            <button class="rules-toggle" onclick="toggleRules('fg')">
+              <span class="badge badge-fg">Fall Guys</span>
+              <span class="rules-chevron" id="rules-chevron-fg">›</span>
+            </button>
+            <div class="rules-content hidden" id="rules-content-fg">
+              <p><strong>Format :</strong> 3 parties jouées en solo, tous dans la même partie.</p>
+              <p><strong>Points :</strong> attribués selon ta progression à chaque partie.</p>
+              <p><strong>Classement :</strong> les points individuels sont cumulés sur les 3 parties pour former le score final du duo.</p>
+            </div>
+          </div>
+
+          <div class="rules-item">
+            <button class="rules-toggle" onclick="toggleRules('mc')">
+              <span class="badge badge-mc">Minecraft</span>
+              <span class="rules-chevron" id="rules-chevron-mc">›</span>
+            </button>
+            <div class="rules-content hidden" id="rules-content-mc">
+              <p><strong>Serveur :</strong> play.manacube.com — Medium Parkour</p>
+              <p><strong>Durée :</strong> 30 minutes pour réaliser les meilleurs temps sur :</p>
+              <ul class="rules-ul">
+                <li>Biomes</li>
+                <li>Sonic</li>
+                <li>Rainbow Road</li>
+              </ul>
+              <p><strong>Calcul :</strong> les temps des 3 maps sont additionnés. Map non terminée = <strong>+30 min</strong> de pénalité.</p>
+              <p><strong>Classement :</strong> les temps des deux joueurs du duo sont cumulés.</p>
+            </div>
+          </div>
+
+          <div class="rules-item">
+            <button class="rules-toggle" onclick="toggleRules('hi')">
+              <span class="badge badge-hi">Halo Infinite</span>
+              <span class="rules-chevron" id="rules-chevron-hi">›</span>
+            </button>
+            <div class="rules-content hidden" id="rules-content-hi">
+              <p><strong>Format :</strong> 3 parties FFA sur :</p>
+              <ul class="rules-ul">
+                <li>Absolution</li>
+                <li>Bazaar</li>
+                <li>Catalyst</li>
+              </ul>
+              <p><strong>Objectif :</strong> 25 kills par partie.</p>
+              <p><strong>Classement :</strong> basé sur la moyenne des scores obtenus sur les 3 parties.</p>
+              <p><strong>Lobbies :</strong> les deux joueurs d'un même duo sont séparés dans des parties différentes.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/mock-db.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-Multi — Connexion</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body>
+  <div class="amb"></div>
+  <div id="toast-container"></div>
+
+  <div class="login-page">
+    <div class="login-card">
+
+      <!-- Logo -->
+      <div class="login-logo">
+        <div class="login-name">MINI-MULTI</div>
+        <div class="login-sub">Tournoi Multigaming</div>
+        <div class="login-games">
+          <span class="lg-icon fg">Fall Guys</span>
+          <span class="lg-icon mc">Minecraft</span>
+          <span class="lg-icon hi">Halo Infinite</span>
+        </div>
+      </div>
+
+      <!-- Accès direct -->
+      <div class="login-form">
+        <button id="btn-enter" class="btn btn-primary btn-lg btn-full">
+          Accéder au tournoi →
+        </button>
+      </div>
+
+      <!-- Lien admin discret -->
+      <div class="admin-link-row">
+        <a id="admin-toggle">Accès administrateur</a>
+      </div>
+
+      <!-- Formulaire Admin (caché par défaut) -->
+      <div id="admin-panel-form" class="admin-panel-form hidden">
+        <div class="form-group">
+          <label class="form-label" for="admin-email">Email</label>
+          <input type="email" id="admin-email" class="form-input" placeholder="admin@exemple.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="admin-password">Mot de passe</label>
+          <input type="password" id="admin-password" class="form-input" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div id="admin-error" class="hidden"></div>
+        <button id="btn-admin-login" class="btn btn-primary btn-full">
+          Se connecter
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/mock-db.js"></script>
+  <script>
+    // ─── Init ────────────────────────────────────────────────
+    async function init() {
+      const session = await getSession();
+      if (session) { window.location.href = 'admin.html'; return; }
+      if (localStorage.getItem('mm_user_type')) { window.location.href = 'dashboard.html'; return; }
+    }
+
+    // ─── Accès tournoi ───────────────────────────────────────
+    document.getElementById('btn-enter').addEventListener('click', () => {
+      localStorage.setItem('mm_user_type', 'spectator');
+      localStorage.removeItem('mm_team_id');
+      localStorage.removeItem('mm_team_name');
+      window.location.href = 'dashboard.html';
+    });
+
+    // ─── Toggle admin ────────────────────────────────────────
+    document.getElementById('admin-toggle').addEventListener('click', () => {
+      const form = document.getElementById('admin-panel-form');
+      form.classList.toggle('hidden');
+    });
+
+    // ─── Login admin ─────────────────────────────────────────
+    document.getElementById('btn-admin-login').addEventListener('click', async () => {
+      const email    = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
+      const errEl    = document.getElementById('admin-error');
+      const btn      = document.getElementById('btn-admin-login');
+
+      if (!email || !password) {
+        errEl.textContent = 'Remplis tous les champs.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Connexion…';
+      errEl.classList.add('hidden');
+
+      const { data, error } = await signInAdmin(email, password);
+      if (error) {
+        errEl.textContent = 'Identifiants incorrects.';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+        return;
+      }
+
+      window.location.href = 'admin.html';
+    });
+
+    // ─── Entrée clavier admin ────────────────────────────────
+    ['admin-email', 'admin-password'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('btn-admin-login').click();
+      });
+    });
+
+    // ─── Toast helper ────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    init();
+  </script>
+</body>
+</html>
